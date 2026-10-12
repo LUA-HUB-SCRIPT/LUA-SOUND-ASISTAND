@@ -1,4 +1,3 @@
-```yaml
 name: Build LUA SOUND Assistant EXE
 
 'on':
@@ -34,17 +33,17 @@ jobs:
             python -m pip install -r requirements.txt
           }
 
-      - name: Validate Source
+      - name: Check Main File
         shell: pwsh
         run: |
           if (!(Test-Path "main.py")) {
-            throw "ERROR: main.py tidak ditemukan di root repository."
+            throw "main.py tidak ditemukan di root repository"
           }
 
           python -m py_compile main.py
 
           if ($LASTEXITCODE -ne 0) {
-            throw "ERROR: main.py memiliki kesalahan sintaks Python."
+            throw "main.py memiliki kesalahan sintaks"
           }
 
       - name: Build EXE
@@ -59,7 +58,7 @@ jobs:
             main.py
 
           if ($LASTEXITCODE -ne 0) {
-            throw "ERROR: PyInstaller gagal membuat EXE."
+            throw "PyInstaller gagal membuat EXE"
           }
 
       - name: Verify EXE
@@ -68,18 +67,12 @@ jobs:
           $exe = "dist/LUA-SOUND-ASISTAND.exe"
 
           if (!(Test-Path $exe)) {
-            throw "ERROR: File EXE tidak ditemukan."
+            throw "File EXE tidak ditemukan"
           }
 
-          $file = Get-Item $exe
-
-          if ($file.Length -le 0) {
-            throw "ERROR: File EXE kosong."
+          if ((Get-Item $exe).Length -le 0) {
+            throw "File EXE kosong"
           }
-
-          Write-Host "Build berhasil."
-          Write-Host "File: $($file.FullName)"
-          Write-Host "Ukuran: $($file.Length) bytes"
 
       - name: Upload EXE Artifact
         uses: actions/upload-artifact@v4
@@ -88,4 +81,4 @@ jobs:
           path: dist/LUA-SOUND-ASISTAND.exe
           if-no-files-found: error
           retention-days: 14
-```
+
