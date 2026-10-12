@@ -1,7 +1,7 @@
 ```yaml
 name: Build LUA SOUND Assistant EXE
 
-on:
+'on':
   workflow_dispatch:
   push:
     branches:
@@ -12,16 +12,17 @@ permissions:
 
 jobs:
   build:
+    name: Build Windows EXE
     runs-on: windows-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v5
 
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
-          python-version: "3.12"
+          python-version: '3.12'
 
       - name: Install Dependencies
         shell: pwsh
@@ -33,11 +34,17 @@ jobs:
             python -m pip install -r requirements.txt
           }
 
-      - name: Check Main File
+      - name: Validate Source
         shell: pwsh
         run: |
           if (!(Test-Path "main.py")) {
-            throw "main.py tidak ditemukan di root repository"
+            throw "ERROR: main.py tidak ditemukan di root repository."
+          }
+
+          python -m py_compile main.py
+
+          if ($LASTEXITCODE -ne 0) {
+            throw "ERROR: main.py memiliki kesalahan sintaks Python."
           }
 
       - name: Build EXE
@@ -52,17 +59,29 @@ jobs:
             main.py
 
           if ($LASTEXITCODE -ne 0) {
-            throw "Build EXE gagal"
+            throw "ERROR: PyInstaller gagal membuat EXE."
           }
 
       - name: Verify EXE
         shell: pwsh
         run: |
-          if (!(Test-Path "dist/LUA-SOUND-ASISTAND.exe")) {
-            throw "EXE tidak ditemukan"
+          $exe = "dist/LUA-SOUND-ASISTAND.exe"
+
+          if (!(Test-Path $exe)) {
+            throw "ERROR: File EXE tidak ditemukan."
           }
 
-      - name: Upload EXE
+          $file = Get-Item $exe
+
+          if ($file.Length -le 0) {
+            throw "ERROR: File EXE kosong."
+          }
+
+          Write-Host "Build berhasil."
+          Write-Host "File: $($file.FullName)"
+          Write-Host "Ukuran: $($file.Length) bytes"
+
+      - name: Upload EXE Artifact
         uses: actions/upload-artifact@v4
         with:
           name: LUA-SOUND-ASISTAND-EXE
