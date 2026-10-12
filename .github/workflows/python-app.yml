@@ -29,17 +29,17 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install pyinstaller
 
-      - name: Check Main File
-        shell: pwsh
-        run: |
-          if (!(Test-Path "main.py")) {
-            Write-Error "main.py tidak ditemukan di root repository!"
-            exit 1
+          if (Test-Path "requirements.txt") {
+            python -m pip install -r requirements.txt
           }
 
       - name: Build EXE
         shell: pwsh
         run: |
+          if (!(Test-Path "main.py")) {
+            throw "main.py tidak ditemukan di root repository"
+          }
+
           python -m PyInstaller `
             --noconfirm `
             --clean `
@@ -48,30 +48,22 @@ jobs:
             --name "LUA-SOUND-ASISTAND" `
             main.py
 
+          if ($LASTEXITCODE -ne 0) {
+            throw "Build EXE gagal"
+          }
+
       - name: Verify EXE
         shell: pwsh
         run: |
-          $exe = "dist/LUA-SOUND-ASISTAND.exe"
-
-          if (!(Test-Path $exe)) {
-            Write-Error "EXE tidak berhasil dibuat!"
-            exit 1
+          if (!(Test-Path "dist/LUA-SOUND-ASISTAND.exe")) {
+            throw "File EXE tidak ditemukan"
           }
 
-          $file = Get-Item $exe
-
-          if ($file.Length -le 0) {
-            Write-Error "File EXE kosong!"
-            exit 1
-          }
-
-          Write-Host "Build berhasil: $($file.FullName)"
-          Write-Host "Ukuran: $($file.Length) bytes"
-
-      - name: Upload EXE Artifact
+      - name: Upload EXE
         uses: actions/upload-artifact@v4
         with:
           name: LUA-SOUND-ASISTAND-EXE
           path: dist/LUA-SOUND-ASISTAND.exe
           if-no-files-found: error
           retention-days: 14
+```
