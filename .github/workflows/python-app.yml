@@ -33,13 +33,16 @@ jobs:
             python -m pip install -r requirements.txt
           }
 
-      - name: Build EXE
+      - name: Check Main File
         shell: pwsh
         run: |
           if (!(Test-Path "main.py")) {
             throw "main.py tidak ditemukan di root repository"
           }
 
+      - name: Build EXE
+        shell: pwsh
+        run: |
           python -m PyInstaller `
             --noconfirm `
             --clean `
@@ -56,7 +59,7 @@ jobs:
         shell: pwsh
         run: |
           if (!(Test-Path "dist/LUA-SOUND-ASISTAND.exe")) {
-            throw "File EXE tidak ditemukan"
+            throw "EXE tidak ditemukan"
           }
 
       - name: Upload EXE
