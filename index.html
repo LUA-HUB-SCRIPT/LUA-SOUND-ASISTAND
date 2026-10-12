@@ -1,0 +1,647 @@
+```html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b0e14">
+  <title>LUA HUB | Launcher</title>
+
+  <style>
+    :root {
+      --bg: #0b0e14;
+      --panel: #121722;
+      --panel2: #181f2d;
+      --border: #293244;
+      --blue: #5794ff;
+      --text: #f3f6fc;
+      --muted: #98a5ba;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(ellipse at 80% 0%, #17284a 0%, transparent 45%),
+        var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    button, a {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 245px;
+      padding: 28px 18px;
+      background: rgba(12, 16, 25, .92);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 8px;
+    }
+
+    .logo {
+      width: 43px;
+      height: 43px;
+      border-radius: 13px;
+      display: grid;
+      place-items: center;
+      color: white;
+      background: linear-gradient(135deg, #3984ff, #7755ff);
+      font-weight: 900;
+      font-size: 20px;
+      box-shadow: 0 0 25px #3478f633;
+    }
+
+    .brand h1 {
+      font-size: 17px;
+      letter-spacing: 1px;
+    }
+
+    .brand p {
+      margin-top: 5px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .nav-label {
+      padding: 0 12px;
+      margin-bottom: 10px;
+      color: #718099;
+      font-size: 10px;
+      font-weight: bold;
+      letter-spacing: 1.5px;
+    }
+
+    .nav {
+      display: grid;
+      gap: 7px;
+    }
+
+    .nav button {
+      padding: 13px 14px;
+      text-align: left;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      transition: .2s;
+    }
+
+    .nav button:hover,
+    .nav button.active {
+      color: white;
+      background: #1b2940;
+      border-color: #2b4771;
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      padding: 15px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--panel);
+    }
+
+    .sidebar-bottom p {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .main {
+      flex: 1;
+      min-width: 0;
+      padding: 30px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 35px;
+    }
+
+    .topbar h2 {
+      font-size: 24px;
+    }
+
+    .topbar p {
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      color: #86e8b4;
+      background: #153326;
+      border: 1px solid #24563d;
+      border-radius: 30px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      background: #54df92;
+      border-radius: 50%;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 36px;
+      min-height: 290px;
+      display: flex;
+      align-items: center;
+      border: 1px solid #30466b;
+      border-radius: 20px;
+      background:
+        radial-gradient(circle at 90% 20%, #397fff35, transparent 35%),
+        linear-gradient(115deg, #17243a, #111723 70%);
+    }
+
+    .hero-content {
+      max-width: 520px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 7px 10px;
+      margin-bottom: 18px;
+      border-radius: 7px;
+      color: #9fc4ff;
+      background: #24416b;
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .hero h3 {
+      font-size: clamp(28px, 4vw, 43px);
+      line-height: 1.15;
+      margin-bottom: 15px;
+    }
+
+    .hero h3 span {
+      color: var(--blue);
+    }
+
+    .hero p {
+      max-width: 450px;
+      color: #aebbd0;
+      line-height: 1.8;
+      font-size: 14px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 13px 17px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: bold;
+      text-decoration: none;
+      transition: .2s;
+    }
+
+    .btn-primary {
+      color: white;
+      background: #347cf6;
+    }
+
+    .btn-primary:hover {
+      background: #5794ff;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      color: #e2e9f5;
+      background: #202b3e;
+      border-color: #35435a;
+    }
+
+    .btn-secondary:hover {
+      background: #293951;
+    }
+
+    .hero-mark {
+      position: absolute;
+      right: 8%;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: clamp(100px, 17vw, 205px);
+      font-weight: 900;
+      color: #5d91fa;
+      opacity: .10;
+      user-select: none;
+    }
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      margin: 32px 0 17px;
+    }
+
+    .section-heading h3 {
+      font-size: 18px;
+    }
+
+    .section-heading span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      min-width: 0;
+      padding: 21px;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      background: linear-gradient(145deg, #151c29, #10151f);
+      transition: .2s;
+    }
+
+    .card:hover {
+      border-color: #496b9f;
+      transform: translateY(-3px);
+    }
+
+    .card-icon {
+      width: 45px;
+      height: 45px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 18px;
+      background: #213554;
+      border-radius: 12px;
+      font-size: 21px;
+    }
+
+    .card h4 {
+      font-size: 15px;
+      margin-bottom: 9px;
+    }
+
+    .card p {
+      min-height: 42px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .card .btn {
+      width: 100%;
+      margin-top: 17px;
+      padding: 11px;
+    }
+
+    .info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .info-box {
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--panel);
+    }
+
+    .info-box h4 {
+      margin-bottom: 9px;
+      font-size: 14px;
+    }
+
+    .info-box p {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    footer {
+      padding: 30px 0 5px;
+      text-align: center;
+      color: #728099;
+      font-size: 11px;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+      animation: appear .25s ease;
+    }
+
+    @keyframes appear {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 900px) {
+      .sidebar { width: 205px; }
+      .main { padding: 22px; }
+      .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .hero-mark { right: -2%; }
+    }
+
+    @media (max-width: 620px) {
+      .app { flex-direction: column; }
+      .sidebar {
+        width: 100%;
+        padding: 15px;
+        gap: 15px;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .sidebar-bottom { display: none; }
+      .nav-label { display: none; }
+      .nav {
+        display: flex;
+        overflow-x: auto;
+      }
+      .nav button {
+        flex: 0 0 auto;
+        padding: 10px 12px;
+        font-size: 12px;
+      }
+      .main { padding: 20px 15px; }
+      .topbar { align-items: flex-start; }
+      .topbar h2 { font-size: 21px; }
+      .status { font-size: 10px; }
+      .hero { padding: 25px 20px; min-height: 300px; }
+      .hero-mark { right: -15%; opacity: .07; }
+      .cards, .info { grid-template-columns: 1fr; }
+      .card p { min-height: 0; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">L</div>
+        <div>
+          <h1>LUA HUB</h1>
+          <p>APPLICATION LAUNCHER</p>
+        </div>
+      </div>
+
+      <div>
+        <div class="nav-label">MENU UTAMA</div>
+        <nav class="nav">
+          <button class="active" data-page="home">⌂ &nbsp; Dashboard</button>
+          <button data-page="apps">▦ &nbsp; Aplikasi</button>
+          <button data-page="about">ⓘ &nbsp; Tentang</button>
+        </nav>
+      </div>
+
+      <div class="sidebar-bottom">
+        <p><strong style="color:white">LUA HUB</strong></p>
+        <p>Temukan aplikasi dan download versi terbaru melalui halaman resmi.</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h2 id="page-title">Dashboard</h2>
+          <p>Selamat datang di launcher LUA HUB.</p>
+        </div>
+        <div class="status"><span class="dot"></span> Web Launcher</div>
+      </header>
+
+      <section class="page active" id="home">
+        <div class="hero">
+          <div class="hero-content">
+            <div class="eyebrow">LUA HUB OFFICIAL</div>
+            <h3>Semua aplikasi,<br><span>satu tempat.</span></h3>
+            <p>
+              Temukan aplikasi buatan LUA HUB dan unduh versi Windows
+              melalui halaman rilis resmi GitHub.
+            </p>
+            <div class="actions">
+              <a class="btn btn-primary" href="#apps" data-goto="apps">
+                ▣ &nbsp; Lihat Aplikasi
+              </a>
+              <a class="btn btn-secondary"
+                 href="https://github.com/LUA-HUB-SCRIPT/LUA-SOUND-ASISTAND/releases/latest"
+                 target="_blank" rel="noopener noreferrer">
+                ↓ &nbsp; Download Terbaru
+              </a>
+            </div>
+          </div>
+          <div class="hero-mark">L</div>
+        </div>
+
+        <div class="section-heading">
+          <h3>Aplikasi Pilihan</h3>
+          <span>Produk LUA HUB</span>
+        </div>
+
+        <div class="cards">
+          <article class="card">
+            <div class="card-icon">♫</div>
+            <h4>LUA SOUND Assistant</h4>
+            <p>Aplikasi Windows dari proyek LUA HUB.</p>
+            <a class="btn btn-primary"
+               href="https://github.com/LUA-HUB-SCRIPT/LUA-SOUND-ASISTAND/releases/latest"
+               target="_blank" rel="noopener noreferrer">
+              Download
+            </a>
+          </article>
+
+          <article class="card">
+            <div class="card-icon">⌘</div>
+            <h4>AHZA Assistant</h4>
+            <p>Tempat untuk produk assistant berikutnya.</p>
+            <a class="btn btn-secondary"
+               href="https://github.com/LUA-HUB-SCRIPT"
+               target="_blank" rel="noopener noreferrer">
+              Lihat GitHub
+            </a>
+          </article>
+
+          <article class="card">
+            <div class="card-icon">⚙</div>
+            <h4>LUA HUB Tools</h4>
+            <p>Kumpulan proyek dan tools dari developer.</p>
+            <a class="btn btn-secondary"
+               href="https://github.com/LUA-HUB-SCRIPT"
+               target="_blank" rel="noopener noreferrer">
+              Jelajahi
+            </a>
+          </article>
+        </div>
+
+        <div class="info">
+          <div class="info-box">
+            <h4>⬇ Download Aman</h4>
+            <p>Gunakan halaman rilis resmi GitHub untuk mendapatkan file yang diterbitkan oleh developer.</p>
+          </div>
+          <div class="info-box">
+            <h4>✦ Dibuat oleh LUA HUB</h4>
+            <p>Launcher web independen untuk mengumpulkan tautan aplikasi dalam satu tampilan.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="apps">
+        <div class="section-heading">
+          <h3>Semua Aplikasi</h3>
+          <span>Daftar produk</span>
+        </div>
+        <div class="cards">
+          <article class="card">
+            <div class="card-icon">♫</div>
+            <h4>LUA SOUND Assistant</h4>
+            <p>Windows · Unduhan dari GitHub Releases.</p>
+            <a class="btn btn-primary"
+               href="https://github.com/LUA-HUB-SCRIPT/LUA-SOUND-ASISTAND/releases/latest"
+               target="_blank" rel="noopener noreferrer">
+              Download Windows
+            </a>
+          </article>
+          <article class="card">
+            <div class="card-icon">⌘</div>
+            <h4>AHZA Assistant</h4>
+            <p>Kunjungi organisasi GitHub untuk melihat proyek.</p>
+            <a class="btn btn-secondary"
+               href="https://github.com/LUA-HUB-SCRIPT"
+               target="_blank" rel="noopener noreferrer">
+              Buka GitHub
+            </a>
+          </article>
+        </div>
+      </section>
+
+      <section class="page" id="about">
+        <div class="info-box">
+          <h4>Tentang LUA HUB Launcher</h4>
+          <p>
+            LUA HUB Launcher adalah website untuk mengumpulkan tautan
+            aplikasi dan halaman unduhan resmi. Website ini tidak
+            menjalankan file EXE di browser.
+          </p>
+          <p style="margin-top:14px">
+            Developer: LUA HUB<br>
+            Platform: Web dan Windows download links
+          </p>
+          <a class="btn btn-primary"
+             href="https://github.com/LUA-HUB-SCRIPT"
+             target="_blank" rel="noopener noreferrer">
+            Kunjungi GitHub
+          </a>
+        </div>
+      </section>
+
+      <footer>
+        © <span id="year"></span> LUA HUB · Made with care.
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    const buttons = document.querySelectorAll("[data-page]");
+    const pages = document.querySelectorAll(".page");
+    const title = document.getElementById("page-title");
+
+    const titles = {
+      home: "Dashboard",
+      apps: "Aplikasi",
+      about: "Tentang LUA HUB"
+    };
+
+    function showPage(pageName) {
+      if (!titles[pageName]) return;
+
+      pages.forEach(page => {
+        page.classList.toggle("active", page.id === pageName);
+      });
+
+      buttons.forEach(button => {
+        button.classList.toggle(
+          "active",
+          button.dataset.page === pageName
+        );
+      });
+
+      title.textContent = titles[pageName];
+      history.replaceState(null, "", "#" + pageName);
+    }
+
+    buttons.forEach(button => {
+      button.addEventListener("click", () => {
+        showPage(button.dataset.page);
+      });
+    });
+
+    document.querySelectorAll("[data-goto]").forEach(link => {
+      link.addEventListener("click", event => {
+        event.preventDefault();
+        showPage(link.dataset.goto);
+      });
+    });
+
+    const initialPage = location.hash.slice(1);
+    showPage(titles[initialPage] ? initialPage : "home");
+
+    document.getElementById("year").textContent =
+      new Date().getFullYear();
+  </script>
+</body>
+</html>
+```
